@@ -242,6 +242,17 @@ $(document).ready(function() {
 
 		});
 	});
+
+	// Отмена POST запроса и получение данных с формы
+	$(document).ready(function () {
+		$( "form" ).on( "submit", function( event ) {
+			event.preventDefault();
+			var formValues = $(this).serialize();
+			$.post('/upload.php', formValues, function (data) {
+				alert(data);
+			})
+		});
+	})
 	
 	// Простые стили для области перетаскивания
 	$('#drop-files').on('dragenter', function() {

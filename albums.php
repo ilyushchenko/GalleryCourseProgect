@@ -24,7 +24,7 @@ require_once "classes/AlbumViewer.php";
                 padding:5px;
             }
             .thumb img:hover {
-                filter: gray; /* IE6-9 */
+                filter: ; /* IE6-9 */
                 -webkit-filter: grayscale(1);
             }
             .thumb {
@@ -71,10 +71,10 @@ require_once "classes/AlbumViewer.php";
                         <?
                         //показ фоток
                         $querry = "SELECT * FROM photos WHERE AlbumID = '$albumID'";
-                        $result = $db->getQuerry($querry);
 
-                        if ($result) {
-                            while ($row = mysqli_fetch_assoc($result)) {
+                        if ($db->Querry($querry)) {
+                            $result = $db->AssocQuerry();
+                            foreach ($result as $row) {
                                 ?>
                                 <div class='col-md-3 col-sm-4 col-xs-6 thumb'>
                                     <a class='fancyimage' data-fancybox-group='group' href='<? echo $row['Catalog'].$row['Filename']?>'>
@@ -83,8 +83,6 @@ require_once "classes/AlbumViewer.php";
                                 </div>
                                 <?
                             }
-                            // очищаем результат
-                            mysqli_free_result($result);
                         }
                         ?>
                         </div>
@@ -99,41 +97,48 @@ require_once "classes/AlbumViewer.php";
                     include 'html/uploadForm.php';
                     GetUploader($albumID);
                     $querry = "SELECT * FROM photos WHERE AlbumID = '$albumID'";
-                    $result = $db->getQuerry($querry);
-                    if ($result) {
-                        while ($row = mysqli_fetch_assoc($result)) {
+                    if ($db->Querry($querry)) {
+                        $result = $db->AssocQuerry();
+                        foreach ($result as $row) {
+                            $title  = $row['Title'];
+                            $description  = $row['Description'];
+                            $photoID = $row['ID'];
+                            $catalog = $row['Catalog'];
+                            $filename = $row['Filename'];
+                            $fullPath = $catalog.$filename;
                             ?>
-                            <div class="row" photoID = '<? echo $row['ID'] ?>'>
+                            <div class="row" photoID = '<?echo $photoID ?>'>
                                 <div class="col-md-4">
-                                    <img src='<? echo $row['Catalog'].$row['Filename'] ?>' class='img-responsive' photoID = '<? echo $row['ID'] ?>' />
+                                    <img src='<? echo $fullPath ?>' class='img-responsive' photoID = '<? echo $photoID ?>' />
                                 </div>
                                 <div class="col-md-8">
                                     <div class="row">
-                                        <form class="form-horizontal" role="form">
+                                        <form id="update-photo-info-<? echo $photoID ?>" class="form-horizontal" role="form">
+                                            <input type="hidden" name="photoID" value="<? echo $photoID ?>">
                                             <div class="form-group">
-                                                <label for="inputAlbumName" class="col-sm-2 control-label">Название</label>
+                                                <label for="update-photo-title-<? echo $photoID ?>" class="col-sm-2 control-label">Название</label>
                                                 <div class="col-sm-10">
-                                                    <input type="text" class="form-control" id="inputAlbumName" placeholder="Название фото" value="<?echo $row['Title']?>">
+                                                    <input name="title" type="text" class="form-control" id="update-photo-title-<? echo $photoID ?>" placeholder="Название фото" value="<?echo $title ?>">
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                <label for="inputAlbumDescription" class="col-sm-2 control-label">Описание</label>
+                                                <label for="update-photo-description-<? echo $photoID ?>" class="col-sm-2 control-label">Описание</label>
                                                 <div class="col-sm-10">
-                                                    <textarea class="form-control" id="inputAlbumDescription" placeholder="Описание фото"><?echo $row['Description']?></textarea>
+                                                    <textarea name="description" class="form-control" id="update-photo-description-<? echo $photoID ?>" placeholder="Описание фото"><?echo $description?></textarea>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-sm-offset-2 col-sm-10">
                                                     <div class="checkbox">
                                                         <label>
-                                                            <input type="checkbox"> Закрытый
+                                                            <input type="checkbox" name="private"> Закрытый
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-sm-offset-2 col-sm-10">
-                                                    <button type="submit" class="btn btn-default btn-info">Обновить</button>
+                                                    <button type="submit" class="btn btn-default btn-info" id="update-photo-<? echo $photoID ?>" photoID = '<? echo $photoID ?>'>Обновить</button>
                                                 </div>
                                             </div>
                                         </form>
@@ -145,8 +150,6 @@ require_once "classes/AlbumViewer.php";
                             </div>
                             <?
                         }
-                        // очищаем результат
-                        mysqli_free_result($result);
                     }
                 }
                 else
@@ -160,8 +163,9 @@ require_once "classes/AlbumViewer.php";
                 //показ фоток
                 $userID = Auth::getUserID();
                 $querry = "SELECT * FROM albums WHERE OwnerID = '$userID'";
-                $result = $db->getQuerry($querry);
-                if ($result) {
+
+                if ($db->Querry($querry)) {
+                    $result = $db->AssocQuerry();
                     echo "<table class='table'>";
                     ?>
                     <tr>
@@ -197,7 +201,7 @@ require_once "classes/AlbumViewer.php";
                         </td>
                     </tr>
                     <?
-                    while ($row = mysqli_fetch_assoc($result)) {
+                    foreach ($result as $row) {
                         $title = $row['Title'];
                         $description = $row['Description'];
                         $imageLink = "http://placehold.it/350x150";
@@ -207,8 +211,6 @@ require_once "classes/AlbumViewer.php";
                         echo "</td></tr>";
                     }
                     echo "</table>";
-                    // очищаем результат
-                    mysqli_free_result($result);
                 }
             }
             ?>

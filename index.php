@@ -19,14 +19,12 @@ require_once './classes/DB.php';
     $db = new DB();
     $query = "SELECT * FROM users";
 
-    $result = $db->getQuerry($query);
-
     echo "<table class='table'><tr><th>ID</th><th>Email</th><th>Login</th><th>Password</th><th>Last Auth</th><th>Token</th></tr>";
 
 
-    if ($result) {
-        while ($row = mysqli_fetch_assoc($result)) {
-
+    if ($db->Querry($query)) {
+        $result = $db->AssocQuerry();
+        foreach ($result as $row) {
             echo "<tr><td>".$row["ID"]."</td>";
             echo "<td>".$row["email"]."</td>";
             echo "<td>".$row["login"]."</td>";
@@ -34,8 +32,6 @@ require_once './classes/DB.php';
             echo "<td>".$row["lastAuth"]."</td>";
             echo "<td>".$row["token"]."</td></tr>";
         }
-        // очищаем результат
-        mysqli_free_result($result);
     }
     echo "</table>";
 ?>
