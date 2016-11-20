@@ -246,10 +246,12 @@ $(document).ready(function() {
 	// Отмена POST запроса и получение данных с формы
 	$(document).ready(function () {
 		$( "form" ).on( "submit", function( event ) {
+            var submitButton = $(this).find("button[type='submit']");
 			event.preventDefault();
 			var formValues = $(this).serialize();
 			$.post('/upload.php', formValues, function (data) {
-				alert(data);
+                console.log(data);
+                submitButton.removeClass('btn-info');
 			})
 		});
 	})

@@ -23,6 +23,6 @@ if(!Auth::isAuthorized()) header("Location: login.php");
     <script src="js/bootstrap.js"></script>
 </head>
 <body>
-    <? include "html/header.php"; ?>
+    <? include "html/Header.View.php"; ?>
 </body>
 </html>

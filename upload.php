@@ -1,6 +1,7 @@
 <?php
 require_once "classes/Auth.php";
 if(!Auth::isAuthorized()) header("Location: login.php");
+if(count($_POST) == 0) header("Location: index.php");
 // Вытаскиваем необходимые данные
 $db = new DB();
 if(isset($_POST['description']) && isset($_POST['title']) && isset($_POST['photoID']) )
@@ -8,14 +9,20 @@ if(isset($_POST['description']) && isset($_POST['title']) && isset($_POST['photo
     $description = $_POST['description'];
     $title = $_POST['title'];
     $photoID = $_POST['photoID'];
-    $query = "UPDATE photos SET Description = '$description', Title = '$title' WHERE ID = '$photoID' or ID = '44'";
-    if ($db->Querry($query))
-    {
+    $private = (isset($_POST['private']) == "on") ? 1 : 0;
+    $query = "UPDATE photos SET Description = '$description', Title = '$title', Private = '$private' WHERE ID = '$photoID'";
+    if ($db->Querry($query)) {
         $result = $db->AssocQuerry();
-        print_r($result);
+        if ($result['Result']) {
+            echo json_encode( array("updated" => 1) );
+        }
+        else{
+            echo json_encode( array("updated" => 0) );
+        }
     }
-
-
+    else {
+        echo json_encode( array("updated" => 0) );
+    }
 }
 if(isset($_POST['deletePhoto'])) {
     $photoID = $_POST['deletePhoto'];

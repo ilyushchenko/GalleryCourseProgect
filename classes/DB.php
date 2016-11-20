@@ -39,8 +39,7 @@ class DB
         if (!$result) {
             $this->successQuerrry = false;
         }
-        else
-        {
+        else {
             $this->successQuerrry = true;
             $this->querryResult = $result;
         }
@@ -48,31 +47,14 @@ class DB
         return $this->successQuerrry;
     }
 
-    /*
-    public function AssocQuerry($querry)
-    {
-        $arrResult = [];
-        $result = $this->getQuerry($querry);
-        if ($result && mysqli_num_rows($result) > 0) {
-            while ($row = mysqli_fetch_assoc($result)) {
-                array_push($arrResult, $row);
-            }
-            mysqli_free_result($result);
-        }
-        return $arrResult;
-    }
-    */
-
     public function AssocQuerry()
     {
         $arrResult = [];
         if ($this->successQuerrry) {
-            if (gettype($this->querryResult) == "boolean")
-            {
+            if (gettype($this->querryResult) == "boolean") {
                 $arrResult =  array("Result" => $this->querryResult);
             }
-            else
-            {
+            else {
                 if (mysqli_num_rows($this->querryResult) > 0) {
                     while ($row = mysqli_fetch_assoc($this->querryResult)) {
                         array_push($arrResult, $row);

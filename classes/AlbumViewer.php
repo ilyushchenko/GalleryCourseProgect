@@ -25,19 +25,14 @@ class AlbumViewer
     function isCanViewAlbum($albumID)
     {
         $querry = "SELECT Private, OwnerID FROM albums WHERE ID = '$albumID'";
-        if ($this->db->Querry($querry))
-        {
-
+        if ($this->db->Querry($querry)) {
             $querryData = $this->db->AssocQuerry();
             $userID = Auth::getUserID();
             if (0 == $querryData[0]['Private']) return true;
-            else
-            {
+            else {
                 if($querryData[0]['OwnerID'] == $userID) return true;
                 $querry = "SELECT * FROM AlbumAccess WHERE AlbumID = '$albumID' AND UserID = '$userID'";
-
-                if ($this->db->Querry($querry))
-                {
+                if ($this->db->Querry($querry)) {
                     $result = $this->db->AssocQuerry();
                     if (count($result) > 0) {
                         return true;
