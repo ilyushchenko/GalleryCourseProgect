@@ -1,33 +1,51 @@
 <?php
 require_once "classes/Auth.php";
 if(!Auth::isAuthorized()) header("Location: login.php");
+if(count($_POST) == 0) header("Location: index.php");
 // Вытаскиваем необходимые данные
+$db = new DB();
+if(isset($_POST['description']) && isset($_POST['title']) && isset($_POST['photoID']) )
+{
+    $description = $_POST['description'];
+    $title = $_POST['title'];
+    $photoID = $_POST['photoID'];
+    $private = (isset($_POST['private']) == "on") ? 1 : 0;
+    $query = "UPDATE photos SET Description = '$description', Title = '$title', Private = '$private' WHERE ID = '$photoID'";
+    if ($db->Querry($query)) {
+        $result = $db->AssocQuerry();
+        if ($result['Result']) {
+            echo json_encode( array("updated" => 1) );
+        }
+        else{
+            echo json_encode( array("updated" => 0) );
+        }
+    }
+    else {
+        echo json_encode( array("updated" => 0) );
+    }
+}
 if(isset($_POST['deletePhoto'])) {
     $photoID = $_POST['deletePhoto'];
-    $db = new DB();
     $query = "SELECT * FROM albums, photos WHERE photos.ID = '$photoID' AND albums.ID = photos.AlbumID";
-    $result = $db->getQuerry($query);
-    if(!$result) { echo "Произошла ошибка подключения к серверу и БД, проверьте параметры полключения";  exit;}
-    if (mysqli_num_rows($result) > 0) {
-        $pictureDataRow = mysqli_fetch_array ($result);
-        mysqli_free_result($result);
-        if($pictureDataRow['OwnerID'] == Auth::getUserID()) {
-            $uploaddir = $pictureDataRow['Catalog'];
-            $file = $pictureDataRow['Filename'];
-            $query = "DELETE FROM photos WHERE ID='$photoID'";
-            $result = $db->getQuerry($query);
-            if($result) {
-                unlink($uploaddir.$file);
-                echo json_encode( array("deleted" => 1) );
-            } else {
-                echo json_encode( array("deleted" => 0) );
+
+    if ($db->Querry($query)) {
+        $result = $db->AssocQuerry();
+        foreach ($result as $value) {
+            if($value['OwnerID'] == Auth::getUserID()) {
+                $uploaddir = $value['Catalog'];
+                $file = $value['Filename'];
+                $query = "DELETE FROM photos WHERE ID='$photoID'";
+                if($db->Querry($query) && count($db->AssocQuerry())>0) {
+                    unlink($uploaddir.$file);
+                    echo json_encode( array("deleted" => 1) );
+                } else {
+                    echo json_encode( array("deleted" => 0) );
+                }
             }
         }
     }
 }
 if(isset($_POST['value']) && isset($_POST['name']) && isset($_POST['albumID'])) {
-    $db = new DB();
-
     // Все загруженные файлы помещаются в эту папку
     $uploaddir = 'images/';
     $file = $_POST['value'];
@@ -54,7 +72,7 @@ if(isset($_POST['value']) && isset($_POST['name']) && isset($_POST['albumID'])) 
     // Создаем изображение на сервере
     if(file_put_contents($uploaddir.$randomName, $decodedData)) {
         // Записываем данные изображения в БД
-        $db->getQuerry("INSERT INTO photos (Title, Description, Date, Catalog,Filename, albumID) VALUES ('фото', 'описание', NOW(),'$uploaddir','$randomName', '$albumID')");
+        if ($db->Querry("INSERT INTO photos (Title, Description, Date, Catalog,Filename, albumID) VALUES ('фото', 'описание', NOW(),'$uploaddir','$randomName', '$albumID')"))
         echo $randomName.":загружен успешно";
     }
     else {
