@@ -47,7 +47,7 @@ class DB
         return $this->successQuerrry;
     }
 
-    public function AssocQuerry()
+    public function GetResult()
     {
         $arrResult = [];
         if ($this->successQuerrry) {

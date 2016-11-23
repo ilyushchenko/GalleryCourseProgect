@@ -14,9 +14,11 @@ class AlbumViewer
     {
         $querry = "SELECT OwnerID FROM albums WHERE ID = '$albumID'";
         if($this->db->Querry($querry)) {
-            $result = $this->db->AssocQuerry();
-            if (Auth::getUserID() == $result[0]['OwnerID'])
-                return true;
+            $result = $this->db->GetResult();
+            if (count($result)>0) {
+                if (Auth::getUserID() == $result[0]['OwnerID'])
+                    return true;
+            }
         }
         return false;
 
@@ -26,16 +28,18 @@ class AlbumViewer
     {
         $querry = "SELECT Private, OwnerID FROM albums WHERE ID = '$albumID'";
         if ($this->db->Querry($querry)) {
-            $querryData = $this->db->AssocQuerry();
+            $querryData = $this->db->GetResult();
             $userID = Auth::getUserID();
-            if (0 == $querryData[0]['Private']) return true;
-            else {
-                if($querryData[0]['OwnerID'] == $userID) return true;
-                $querry = "SELECT * FROM AlbumAccess WHERE AlbumID = '$albumID' AND UserID = '$userID'";
-                if ($this->db->Querry($querry)) {
-                    $result = $this->db->AssocQuerry();
-                    if (count($result) > 0) {
-                        return true;
+            if (count($querryData) > 0) {
+                if (0 == $querryData[0]['Private']) return true;
+                else {
+                    if($querryData[0]['OwnerID'] == $userID) return true;
+                    $querry = "SELECT * FROM AlbumAccess WHERE AlbumID = '$albumID' AND UserID = '$userID'";
+                    if ($this->db->Querry($querry)) {
+                        $result = $this->db->GetResult();
+                        if (count($result) > 0) {
+                            return true;
+                        }
                     }
                 }
             }
