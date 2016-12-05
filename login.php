@@ -1,7 +1,7 @@
 <?php
-require_once "/classes/Auth.php";
-require_once "/html/Head.View.php";
-require_once "/html/Header.View.php";
+require_once "classes/Auth.php";
+require_once "views/Head.View.php";
+require_once "views/Header.View.php";
 if(Auth::isAuthorized()) header("Location: index.php");
 if (isset($_GET['logout'])) {
     if(Auth::isAuthorized()) Auth::logout();
