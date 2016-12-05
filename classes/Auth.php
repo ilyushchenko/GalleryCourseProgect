@@ -23,11 +23,13 @@ class Auth
         $db = new DB();
         $query ="SELECT * FROM users WHERE login = '$login'";
         if($db->Querry($query)) {
-            $result = $db->AssocQuerry();
+            $result = $db->GetResult();
             if(count($result) > 0) {
                 $hashedPassword = md5($password);
                 if($hashedPassword == $result[0]['Password']) {
                     $_SESSION['Userid'] = $result[0]['ID'];
+                    $query = "UPDATE users SET lastAuth = now()";
+                    $db->Querry($query);
                     return true;
                 }
                 else {
@@ -48,7 +50,7 @@ class Auth
         $querry = "SELECT Login FROM users WHERE Login = '$login'";
         if ($db->Querry($querry))
         {
-            $result = $db->AssocQuerry();
+            $result = $db->GetResult();
             if(count($result) > 0) {
                 return "Пользователь с таким логином или email зарегестрирован!";
             }
